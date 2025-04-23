@@ -72,7 +72,7 @@ streamlit run app.py
 ```
 
 ## ✨ Demo
-![Screenshot](https://i.imgur.com/vzl5Tex.png)
+st.image("4.png", use_container_width=True)
 
 ## 🚀 Contributors
 - 🔹 [@thanhnamm9999](mailto:thanhnamm9999@gmail.com) — Lead Developer, UI/UX
