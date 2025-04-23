@@ -57,7 +57,7 @@ def classify_music():
             librosa.display.specshow(mel_spec, x_axis="time", y_axis='mel', sr=sr)
             plt.margins(0)
             plt.savefig('melspectrogram.png')
-
+            plt.close()  # 🔥 Rất quan trọng để tránh memory leak
         # Xây dựng mô hình CNN
         def GenreModel(input_shape=(100,200,4), classes=10):
             classifier = Sequential()
@@ -102,6 +102,7 @@ def classify_music():
         # Chuyển đổi file và tạo spectrogram
         convert_mp3_to_wav(mp3_file)
         audio_full = AudioSegment.from_wav('music_file.wav')
+        audio_full = audio_full[:60 * 1000]
 
         class_labels_total = []
         predictions_total = []
