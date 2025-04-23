@@ -33,7 +33,6 @@ from auth import register_user
 from streamlit_cookies_manager import CookieManager
 import base64
 import logging
-from chatbot import display_chatbot 
 import time
 import hmac
 import hashlib
