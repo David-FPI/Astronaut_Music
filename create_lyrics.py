@@ -1,14 +1,13 @@
-from openai import OpenAI
 import streamlit as st
+from openai import OpenAI
 import pyperclip
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
 # Load API key từ file .env
 load_dotenv()
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+# Sử dụng API key từ Streamlit secrets
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Kết nối Supabase
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
