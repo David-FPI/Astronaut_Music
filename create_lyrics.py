@@ -1,29 +1,41 @@
+import os
 import streamlit as st
 from openai import OpenAI
-import pyperclip
-from supabase import create_client, Client
 from dotenv import load_dotenv
-import os
-# Load API key từ file .env
+from supabase import create_client, Client
+
+# Tải biến môi trường từ .env (nếu chạy local)
 load_dotenv()
-# Sử dụng API key từ Streamlit secrets
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+# Lấy API key từ Streamlit secrets hoặc .env
+def get_openai_key():
+    try:
+        return st.secrets["OPENAI_API_KEY"]
+    except:
+        return os.getenv("OPENAI_API_KEY")
+
+# Khởi tạo client OpenAI
+client = OpenAI(api_key=get_openai_key())
 
 # Kết nối Supabase
-SUPABASE_URL = st.secrets["SUPABASE_URL"]
-SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+def get_supabase_client():
+    try:
+        SUPABASE_URL = st.secrets["SUPABASE_URL"]
+        SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+    except KeyError:
+        SUPABASE_URL = os.getenv("SUPABASE_URL")
+        SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+    return create_client(SUPABASE_URL, SUPABASE_KEY)
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase: Client = get_supabase_client()
 
-
-
+# Hàm tạo lời bài hát
 def create_lyrics():
     
     def generate_lyrics(prompt):
-        """Gửi prompt đến OpenAI API để tạo lời bài hát"""
         try:
             response = client.chat.completions.create(
-                model="gpt-4o",  # Hoặc "gpt-3.5-turbo" nếu tài khoản không có quyền truy cập GPT-4
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": "Bạn là một nhạc sĩ sáng tác lời bài hát chuyên nghiệp."},
                     {"role": "user", "content": prompt}
@@ -31,46 +43,35 @@ def create_lyrics():
                 temperature=0.9,
                 max_tokens=900
             )
-
-            # ✅ Lấy nội dung phản hồi đúng cách
-            return response.choices[0].message.content  
-
+            return response.choices[0].message.content
         except Exception as e:
             return f"⚠️ Lỗi khi tạo lời bài hát: {str(e)}"
 
     st.markdown("<h1>🎶 AI Lyric Generator 🎵</h1>", unsafe_allow_html=True)
     col1, col2 = st.columns([3, 5])
     with col1:
-        # Người dùng nhập thể loại nhạc và chủ đề
-        genre = st.text_area("🎼 Chọn thể loại nhạc: ",
-                            placeholder="Pop, Rock, Hip-Hop, Jazz, Ballad, EDM,....")
-        mood = st.text_area("🎭 Chọn cảm xúc: ",
-                            placeholder="Vui vẻ, Buồn, Hào hứng, Thư giãn, Kịch ,....")
-        theme = st.text_area("✍️ Mô tả bản nhạc bạn muốn tạo:",
-                            placeholder="Tình yêu, Mùa thu, Tuổi trẻ, ...")
-        if "lyrics_input" in st.session_state:
-            lyrics = st.session_state.lyrics_input
-        else:
-            lyrics = ""
+        genre = st.text_area("🎼 Thể loại nhạc:", placeholder="Pop, Rock, Ballad...")
+        mood = st.text_area("🎭 Cảm xúc:", placeholder="Buồn, Hạnh phúc, Hào hứng...")
+        theme = st.text_area("✍️ Chủ đề bài hát:", placeholder="Tình yêu, Mùa thu, Tuổi trẻ...")
+
+        lyrics = st.session_state.get("lyrics_input", "")
+
         if st.button("🎤 Sáng tác ngay!"):
             if theme.strip():
                 with st.spinner("🎶 AI đang sáng tác lời bài hát cho bạn..."):
-                    prompt = f"Hãy viết lời bài hát thể loại {genre} về chủ đề '{theme}', với cảm xúc {mood}."
+                    prompt = f"Hãy viết lời bài hát thể loại {genre}, chủ đề '{theme}', với cảm xúc {mood}."
                     lyrics = generate_lyrics(prompt)
+                    st.session_state.lyrics_input = lyrics
             else:
                 st.warning("⚠️ Vui lòng nhập chủ đề bài hát trước khi tạo!")
+
     with col2:
-    # Hiển thị text_area và lưu giá trị trực tiếp vào lyrics    
-        lyrics_input = st.text_area("🎼 Lời bài hát AI tạo:", lyrics, height=370)
-    # Kiểm tra nếu nội dung text_area thay đổi và tự động sao chép vào clipboard
-        st.session_state.lyrics_input = lyrics
-    
-        if st.button("Copy Lyrics"):
-                # pyperclip.copy(lyrics_input)  # Sao chép lyrics vào clipboard
-                lyrics = lyrics_input
-                st.session_state.lyrics = lyrics
-                st.success("Lyrics have been copied to clipboard and Feel The Beat")  # Hiển thị thông báo thành công
+        lyrics_input = st.text_area("🎼 Lời bài hát AI tạo:", value=lyrics, height=370)
+        st.session_state.lyrics_input = lyrics_input
+
+        if st.button("📋 Copy Lyrics"):
+            st.session_state.lyrics = lyrics_input
+            st.success("✅ Lời bài hát đã được sao chép (tạm thời trong session)!")
 
     if lyrics_input != lyrics:
-        lyrics = lyrics_input
-        st.session_state.lyrics_input = lyrics
+        st.session_state.lyrics_input = lyrics_input
