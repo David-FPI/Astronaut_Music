@@ -2,7 +2,6 @@ import streamlit as st
 import os
 import bcrypt
 import re  # Thêm thư viện kiểm tra email hợp lệ
-from openai import OpenAI
 import numpy as np
 import base64
 import pytube
@@ -28,7 +27,6 @@ from auth import register_user
 from streamlit_cookies_manager import CookieManager
 import base64
 import logging
-from chatbot import display_chatbot 
 import time
 import hmac
 import hashlib
@@ -40,9 +38,6 @@ from datetime import datetime, timedelta
 # Load API key từ file .env
 load_dotenv()
 #openai.api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
 api_token = os.getenv("SUNO_API_TOKEN")
 
 # Kết nối Supabase
