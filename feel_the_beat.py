@@ -25,10 +25,6 @@ from create_lyrics import create_lyrics
 
 # Load API key từ file .env
 load_dotenv()
-#openai.api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
 api_token = os.getenv("SUNO_API_TOKEN")
 
 # Kết nối Supabase
