@@ -75,7 +75,7 @@ streamlit run app.py
 ![Demo](4.png)
 
 ## 🚀 Contributors
-- 🔹 [@thanhnamm9999](mailto:thanhnamm9999@gmail.com) — Lead Developer, UI/UX
+- 🔹 [@thanhnamm9999](mailto:thanhnamm9999@gmail.com) — Lead Developer
 
 ## 🎁 Support & Feedback
 Found a bug or need help? Feel free to open an issue or contact via email.
