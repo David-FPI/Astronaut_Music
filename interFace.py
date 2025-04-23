@@ -771,9 +771,7 @@ with st.sidebar:
             st.success("✅ Đã đăng xuất.")
             st.rerun()
 
-        
-        # Hiển thị chatbot
-        display_chatbot()
+
 
 
 # 🚫 Chặn menu nếu chưa đăng nhập
