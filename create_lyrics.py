@@ -7,9 +7,11 @@ import os
 # Load API key từ file .env
 load_dotenv()
 #openai.api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+# Sử dụng OpenAI API Key từ secrets của Streamlit
+openai.api_key = st.secrets["OPENAI_API_KEY"]
+
+# Khởi tạo client OpenAI với API key (sử dụng client như yêu cầu)
+client = openai  # Gán `openai` làm client, đồng nhất với yêu cầu
 
 # Kết nối Supabase
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
