@@ -9,6 +9,10 @@ load_dotenv()
 #openai.api_key = os.getenv("OPENAI_API_KEY")
 # Sử dụng OpenAI API Key từ secrets của Streamlit
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+OPENAI_API_KEY = st.secrets.get("OPENAI_API_KEY", None)
+if not OPENAI_API_KEY:
+    st.error("🚫 OPENAI_API_KEY not found in Streamlit secrets.")
+    st.stop()
 
 # Khởi tạo client OpenAI với API key (sử dụng client như yêu cầu)
 # Khai báo client cho OpenAI
