@@ -1,43 +1,26 @@
-# file: create_lyrics.py
-
-import os
+# file: create_lyrics.p
 import streamlit as st
 from openai import OpenAI
-from dotenv import load_dotenv
 from supabase import create_client, Client
 
 def create_lyrics():
-    # Load biến môi trường nếu đang chạy local
-    load_dotenv()
+    # ✅ Lấy API key từ Streamlit secrets (Cloud chuẩn)
+    try:
+        client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    except Exception:
+        st.error("❌ Không tìm thấy OPENAI_API_KEY trong `Secrets`. Vào App → Settings → Secrets để thêm.")
+        return
 
-    # Lấy OpenAI API key từ secrets hoặc env
-    def get_openai_client():
-        try:
-            api_key = st.secrets["OPENAI_API_KEY"]
-        except Exception:
-            api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            st.error("❌ Không tìm thấy OPENAI_API_KEY trong secrets hoặc .env.")
-            raise ValueError("Thiếu OPENAI_API_KEY")
-        return OpenAI(api_key=api_key)
+    # ✅ Kết nối Supabase
+    try:
+        supabase = create_client(
+            st.secrets["SUPABASE_URL"],
+            st.secrets["SUPABASE_KEY"]
+        )
+    except Exception:
+        st.warning("⚠️ Supabase credentials chưa được cấu hình đầy đủ trong `Secrets`.")
 
-    # Lấy Supabase client
-    def get_supabase_client():
-        try:
-            url = st.secrets["SUPABASE_URL"]
-            key = st.secrets["SUPABASE_KEY"]
-        except KeyError:
-            url = os.getenv("SUPABASE_URL")
-            key = os.getenv("SUPABASE_KEY")
-        if not url or not key:
-            st.warning("⚠️ Thiếu thông tin kết nối Supabase.")
-        return create_client(url, key)
-
-    # Khởi tạo client
-    client = get_openai_client()
-    supabase = get_supabase_client()
-
-    # Gọi API để tạo lời bài hát
+    # 🧠 Hàm gọi API để tạo lyrics
     def generate_lyrics(prompt):
         try:
             response = client.chat.completions.create(
@@ -53,7 +36,7 @@ def create_lyrics():
         except Exception as e:
             return f"⚠️ Lỗi khi tạo lời bài hát: {str(e)}"
 
-    # Giao diện
+    # 🎨 Giao diện người dùng
     st.markdown("<h1>🎶 AI Lyric Generator 🎵</h1>", unsafe_allow_html=True)
     col1, col2 = st.columns([3, 5])
 
@@ -79,8 +62,8 @@ def create_lyrics():
 
         if st.button("📋 Copy Lyrics"):
             st.session_state.lyrics = lyrics_input
-            st.success("✅ Lyrics đã được sao chép (trong session)")
+            st.success("✅ Lyrics đã được sao chép vào session!")
 
-    # Cập nhật nếu người dùng chỉnh sửa lyrics
+    # Đồng bộ nếu có chỉnh sửa thủ công
     if lyrics_input != lyrics:
         st.session_state.lyrics_input = lyrics_input
