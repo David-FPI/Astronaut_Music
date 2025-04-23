@@ -26,7 +26,6 @@ import streamlit.components.v1 as components
 from auth import register_user
 from streamlit_cookies_manager import CookieManager
 import base64
-from chatbot import display_chatbot 
 import time
 from tensorflow.keras.layers import (Input, Add, Dense, Activation, ZeroPadding2D, BatchNormalization, 
                                      Flatten, Conv2D, AveragePooling2D, MaxPooling2D, GlobalMaxPooling2D,
